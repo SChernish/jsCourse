@@ -1,0 +1,18 @@
+$ cat <<EOF > tgtd-var-lib.te
+module tgtd-var-lib 1.0;
+
+require {
+        type iscsi_var_lib_t;
+        type tgtd_t;
+        class file { open read write getattr };
+        class dir { search };
+}
+
+#============= tgtd_t ==============
+allow tgtd_t iscsi_var_lib_t:file { open read write getattr };
+allow tgtd_t iscsi_var_lib_t:dir { search };
+EOF
+$ checkmodule -M -m -o tgtd-var-lib.mod tgtd-var-lib.te
+$ semodule_package -m tgtd-var-lib.mod -o tgtd-var-lib.pp
+$ sudo semodule -i tgtd-var-lib.pp
+$ rm -f tgtd-var-lib.te tgtd-var-lib.mod tgtd-var-lib.pp
